@@ -1,0 +1,19 @@
+GIT Hub
+git config --global user.email "kkarri@gmail.com"
+git config --global user.name "Kannababu.Karri"
+
+{
+	"Version": "2008-10-17",
+	"Statement": [
+		{
+			"Sid": "",
+			"Effect": "Allow",
+			"Principal": {
+				"Service": "ecs.amazonaws.com"
+			},
+			"Action": "sts:AssumeRole"
+		}
+	]
+}
+
+

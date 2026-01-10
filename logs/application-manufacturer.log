@@ -1,0 +1,7 @@
+2026-01-09T21:04:19.018-05:00  WARN 30156 --- [restful.manufacturer] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=3d8h46m16s197ms459µs600ns).
+2026-01-09T21:39:37.052-05:00  WARN 30156 --- [restful.manufacturer] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=3m16s444ms636µs400ns).
+2026-01-09T22:00:05.806-05:00  INFO 30156 --- [restful.manufacturer] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-01-09T22:00:05.856-05:00  INFO 30156 --- [restful.manufacturer] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-01-09T22:00:06.145-05:00  INFO 30156 --- [restful.manufacturer] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-01-09T22:00:06.195-05:00  INFO 30156 --- [restful.manufacturer] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-01-09T22:00:06.204-05:00  INFO 30156 --- [restful.manufacturer] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
