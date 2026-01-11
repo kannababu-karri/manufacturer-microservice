@@ -1,0 +1,54 @@
+TOMCAT
+
+Move WAR to Tomcat webapps folder
+
+cd /tmp
+curl -O https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.50/bin/apache-tomcat-10.1.50.tar.gz
+
+sudo mkdir -p /opt/tomcat
+sudo tar -xzf apache-tomcat-10.1.50.tar.gz -C /opt/tomcat --strip-components=1
+
+Assuming Tomcat is installed in /opt/tomcat and you are logged in as ec2-user:
+
+# Move the WAR to Tomcat
+sudo mv /home/ec2-user/enterprise-products-0.0.1-SNAPSHOT.war /opt/tomcat/webapps/
+sudo mv /home/ec2-user/mfg.jar /opt/tomcat/webapps/
+
+
+# Set ownership so Tomcat can access it
+sudo chown -R tomcat:tomcat /opt/tomcat/webapps/enterprise-products-0.0.1-SNAPSHOT.war
+
+Restart Tomcat
+If using systemd service:
+sudo systemctl stop tomcat
+sudo systemctl restart tomcat
+sudo systemctl status tomcat
+
+If starting manually:
+cd /opt/tomcat/bin
+sudo ./shutdown.sh
+sudo ./startup.sh
+
+sudo mkdir -p /var/log/myapp
+sudo chown -R ec2-user:ec2-user /var/log/myapp
+sudo chmod 755 /var/log/myapp
+
+
+Check deployment logs
+# View Tomcat logs in real-time
+sudo tail -f /opt/tomcat/logs/catalina.out
+
+sudo rm -rf enterprise-products-0.0.1-SNAPSHOT
+sudo rm -rf enterprise-products-0.0.1-SNAPSHOT.war
+
+Look for deployment messages like:
+
+INFO: Deploying web application archive /opt/tomcat/webapps/enterprise-products-0.0.1-SNAPSHOT.war
+
+sudo touch /opt/tomcat/logs/application-mvc.log
+sudo chown ec2-user:ec2-user /opt/tomcat/logs/application-mvc.log
+If it runs as tomcat:
+
+bash
+Copy code
+sudo chown tomcat:tomcat /opt/tomcat/logs/application-mvc.log
