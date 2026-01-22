@@ -99,19 +99,21 @@ public class ManufacturerController {
     
     //@GetMapping("/search/{manufacturerNameLike}")
     //public ResponseEntity<List<Manufacturer>> searchByName(@PathVariable String manufacturerNameLike) {
-    @GetMapping("/search")
-    public ResponseEntity<List<Manufacturer>> searchByName(@RequestParam(name="mfgName", required=false) String manufacturerNameLike) {
-    	_LOGGER.info(">>> Inside searchByName. <<<");
+    //@GetMapping("/search")
+    @GetMapping("/search/{mfgName}")
+    //public ResponseEntity<List<Manufacturer>> searchByName(@RequestParam(name="mfgName", required=false) String manufacturerNameLike) {
+    public ResponseEntity<List<Manufacturer>> searchByName(@PathVariable String mfgName) {
+    	_LOGGER.info(">>> Inside searchByName. mfgName:<<<"+mfgName);
     	
-    	if (manufacturerNameLike == null || manufacturerNameLike.isBlank()) {
+    	if (mfgName == null || mfgName.isBlank()) {
             //throw new InvalidManufacturerException("Manufacturer name like must not be empty");
         }
     	
 		List<Manufacturer> manufacturers = null;
-		if (manufacturerNameLike == null || manufacturerNameLike.isBlank()) {
+		if (mfgName == null || mfgName.isBlank()) {
 			manufacturers = manufacturerService.findAllManufacturers();
 		} else {
-			manufacturers = manufacturerService.findByManufacturerNameLike(manufacturerNameLike);
+			manufacturers = manufacturerService.findByManufacturerNameLike(mfgName);
 		}
     	
     	if (manufacturers.isEmpty()) {
