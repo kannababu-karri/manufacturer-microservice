@@ -1,5 +1,0 @@
-Angular
-
-npm start
-
-create componets

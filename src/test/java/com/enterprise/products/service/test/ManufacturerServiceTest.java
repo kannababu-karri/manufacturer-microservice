@@ -10,11 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import com.restful.manufacturer.ManufacturerRestfulApplication;
 import com.restful.manufacturer.entity.Manufacturer;
 import com.restful.manufacturer.repository.ManufacturerRepository;
 import com.restful.manufacturer.service.ManufacturerService;
 
-@SpringBootTest
+@SpringBootTest(classes = ManufacturerRestfulApplication.class)
 public class ManufacturerServiceTest {
 	@Autowired
     private ManufacturerService manufacturerService;
