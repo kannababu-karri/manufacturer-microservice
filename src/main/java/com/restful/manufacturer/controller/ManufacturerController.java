@@ -1,10 +1,11 @@
 package com.restful.manufacturer.controller;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +19,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.restful.manufacturer.entity.Manufacturer;
+import com.restful.manufacturer.entity.PageResponseDto;
 import com.restful.manufacturer.exception.InvalidManufacturerException;
 import com.restful.manufacturer.exception.ManufacturerNotFoundException;
 import com.restful.manufacturer.service.ManufacturerService;
 
-@CrossOrigin(origins = "http://localhost:4200")
+//@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/manufacturer")
 public class ManufacturerController {
@@ -78,15 +81,29 @@ public class ManufacturerController {
 	}
 
     @GetMapping
-    public ResponseEntity<List<Manufacturer>> getAll() {
+    public ResponseEntity<PageResponseDto<Manufacturer>> getAll(
+    		@PageableDefault(size = 5, sort = "mfgName")
+    	    Pageable pageable
+    		) {
     	_LOGGER.info(">>> Inside getAll. <<<");
-    	List<Manufacturer> manufacturers = manufacturerService.findAllManufacturers();
     	
-    	if (manufacturers.isEmpty()) {
+    	Page<Manufacturer> page = manufacturerService.findAllManufacturers(pageable);
+    	
+    	PageResponseDto<Manufacturer> dto = new PageResponseDto<>();
+    	
+    	if(page != null) {
+	    	dto.setContent(page.getContent());
+	        dto.setTotalPages(page.getTotalPages());
+	        dto.setTotalElements(page.getTotalElements());
+	        dto.setPageNumber(page.getNumber());
+	        dto.setPageSize(page.getSize());
+    	}
+    	
+    	if (page != null && page.isEmpty()) {
             //throw new ManufacturerNotFoundException("No manufacturers found");
         }
 
-        return ResponseEntity.ok(manufacturers);
+        return ResponseEntity.ok(dto);
     	
     }
     
@@ -106,28 +123,51 @@ public class ManufacturerController {
     //@GetMapping("/search/{manufacturerNameLike}")
     //public ResponseEntity<List<Manufacturer>> searchByName(@PathVariable String manufacturerNameLike) {
     //@GetMapping("/search")
-    @GetMapping("/search/{mfgName}")
+    //@GetMapping("/search/{mfgName}")
     //public ResponseEntity<List<Manufacturer>> searchByName(@RequestParam(name="mfgName", required=false) String manufacturerNameLike) {
-    public ResponseEntity<List<Manufacturer>> searchByName(@PathVariable String mfgName) {
+    @GetMapping({
+    	   "/search/{mfgName}"
+    	})
+    public ResponseEntity<PageResponseDto<Manufacturer>> searchByName(
+    		@PathVariable String mfgName,
+    		@PageableDefault(size = 5, sort = "mfgName")
+    	    Pageable pageable) {
     	_LOGGER.info(">>> Inside searchByName. mfgName:<<<"+mfgName);
     	
     	if (mfgName == null || mfgName.isBlank()) {
             //throw new InvalidManufacturerException("Manufacturer name like must not be empty");
         }
     	
-		List<Manufacturer> manufacturers = null;
-		if (mfgName == null || mfgName.isBlank()) {
-			manufacturers = manufacturerService.findAllManufacturers();
-		} else {
-			manufacturers = manufacturerService.findByManufacturerNameLike(mfgName);
-		}
+    	//int p = (page != null) ? page : 0;
+    	//int s = (size != null) ? size : 5;
     	
-    	if (manufacturers.isEmpty()) {
+    	//Pageable pageable = PageRequest.of(p, s);
+    	
+		Page<Manufacturer> page = null;
+		if (mfgName == null || mfgName.isBlank()) {
+			page = manufacturerService.findAllManufacturers(pageable);
+		} else {
+			page = manufacturerService.findByManufacturerNameLike(mfgName, pageable);
+		}
+		
+		PageResponseDto<Manufacturer> dto = new PageResponseDto<>();
+    	
+    	if(page != null) {
+	    	dto.setContent(page.getContent());
+	        dto.setTotalPages(page.getTotalPages());
+	        dto.setTotalElements(page.getTotalElements());
+	        dto.setPageNumber(page.getNumber());
+	        dto.setPageSize(page.getSize());
+    	}
+    	
+    	if (page != null && page.isEmpty()) {
             //throw new ManufacturerNotFoundException("No manufacturers found for manufacturerNameLike: "+manufacturerNameLike);
         }
 
         //return ResponseEntity.ok(manufacturers);
-        return new ResponseEntity<>(manufacturers, HttpStatus.OK);
+        //return new ResponseEntity<>(manufacturers, HttpStatus.OK);
+        
+    	return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 	
     @GetMapping("/name/{manufacturerName}")

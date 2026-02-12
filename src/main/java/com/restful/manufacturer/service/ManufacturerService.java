@@ -1,11 +1,12 @@
 package com.restful.manufacturer.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,18 +30,18 @@ public class ManufacturerService {
 		}
     }
 
-    public List<Manufacturer> findAllManufacturers() throws ServiceException {
+    public Page<Manufacturer> findAllManufacturers(Pageable pageable) throws ServiceException {
     	try {
-    		return manufacturerRepository.findAll();
+    		return manufacturerRepository.findAll(pageable);
     	} catch (Exception exp) {
 			_LOGGER.error("ERROR: Service Exception occured in findAllManufacturers."+exp.toString());	
 			throw new ServiceException("ERROR: Service Exception occured in findAllManufacturers."+exp.toString());
 		}
     }
     
-    public List<Manufacturer> findByManufacturerNameLike(String mfgName) throws ServiceException {
+    public Page<Manufacturer> findByManufacturerNameLike(String mfgName, Pageable pageable) throws ServiceException {
     	try {
-    		return manufacturerRepository.findByManufacturerNameLike(mfgName);
+    		return manufacturerRepository.findByManufacturerNameLike(mfgName, pageable);
     	} catch (Exception exp) {
 			_LOGGER.error("ERROR: Service Exception occured in findByManufacturerNameLike."+exp.toString());	
 			throw new ServiceException("ERROR: Service Exception occured in findByManufacturerNameLike."+exp.toString());

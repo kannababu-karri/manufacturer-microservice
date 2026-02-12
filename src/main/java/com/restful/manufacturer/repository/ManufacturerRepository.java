@@ -1,8 +1,9 @@
 package com.restful.manufacturer.repository;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,5 +24,5 @@ public interface ManufacturerRepository extends JpaRepository<Manufacturer, Long
     	    SELECT m FROM Manufacturer m
     	    WHERE LOWER(m.mfgName) LIKE LOWER(CONCAT('%', :mfgName, '%'))
     	""")
-    	List<Manufacturer> findByManufacturerNameLike(@Param("mfgName") String mfgName);
+    	Page<Manufacturer> findByManufacturerNameLike(@Param("mfgName") String mfgName, Pageable pageable);
 }

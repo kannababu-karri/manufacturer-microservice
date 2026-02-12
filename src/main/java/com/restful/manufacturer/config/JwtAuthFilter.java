@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.restful.manufacturer.controller.ManufacturerController;
 import com.restful.manufacturer.utils.JwtUtil;
 
 import jakarta.servlet.FilterChain;
@@ -30,7 +29,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
 
-    	_LOGGER.info(">>> Inside doFilterInternal. <<<");
+    	_LOGGER.info(">>> Inside doFilterInternal manufacturer. <<<");
         String authHeader = request.getHeader("Authorization");
         
         _LOGGER.info(">>> authHeader <<<:"+authHeader);
