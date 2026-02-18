@@ -30,8 +30,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
     	_LOGGER.info(">>> Inside doFilterInternal manufacturer. <<<");
+    	
+    	_LOGGER.info(">>> Method: " + request.getMethod());
+    	
+    	// Allow preflight requests to pass
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+            return; // do not continue filter chain
+        }
+    	
         String authHeader = request.getHeader("Authorization");
-        
         _LOGGER.info(">>> authHeader <<<:"+authHeader);
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {

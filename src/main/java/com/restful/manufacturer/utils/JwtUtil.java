@@ -3,8 +3,6 @@ package com.restful.manufacturer.utils;
 import java.util.Date;
 import java.util.List;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;

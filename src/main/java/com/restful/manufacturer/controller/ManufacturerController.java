@@ -23,9 +23,8 @@ import com.restful.manufacturer.entity.PageResponseDto;
 import com.restful.manufacturer.exception.InvalidManufacturerException;
 import com.restful.manufacturer.exception.ManufacturerNotFoundException;
 import com.restful.manufacturer.service.ManufacturerService;
+import com.restful.manufacturer.utils.ILConstants;
 
-//@CrossOrigin(origins = "http://localhost:4200")
-@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/manufacturer")
 public class ManufacturerController {
