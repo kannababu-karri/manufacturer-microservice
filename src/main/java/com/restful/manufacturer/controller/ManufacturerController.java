@@ -1,5 +1,8 @@
 package com.restful.manufacturer.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,13 +10,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,8 +28,11 @@ import com.restful.manufacturer.exception.ManufacturerNotFoundException;
 import com.restful.manufacturer.service.ManufacturerService;
 import com.restful.manufacturer.utils.ILConstants;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/manufacturer")
+@CrossOrigin(origins = {ILConstants.ANGULAR_URL_DEV, ILConstants.ANGULAR_URL_PROD})
 public class ManufacturerController {
 	
 	private static final Logger _LOGGER = LoggerFactory.getLogger(ManufacturerController.class);
@@ -39,47 +45,60 @@ public class ManufacturerController {
     }
     
     @PostMapping
-    	(
-    			consumes = MediaType.APPLICATION_JSON_VALUE,
-    			produces  = MediaType.APPLICATION_JSON_VALUE
-    	)
-    public ResponseEntity<Manufacturer> createManufacturer(@RequestBody Manufacturer manufacturer) {
-    	_LOGGER.info(">>> Inside createManufacturer. <<<");
-        if (manufacturer.getMfgName() == null || manufacturer.getMfgName().isBlank()) {
-            throw new InvalidManufacturerException("Manufacturer name must not be empty");
-        }
+    public ResponseEntity<Manufacturer> create(@Valid @RequestBody Manufacturer manufacturer) {
+
+        _LOGGER.info(">>> Inside createManufacturer. <<<");
 
         Manufacturer saved = manufacturerService.saveOrUpdate(manufacturer);
         
-        //return new ResponseEntity<>(saved, HttpStatus.CREATED);
-        //Using builder for 201 Created
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
     
+    @PutMapping("/{id}")
+    public ResponseEntity<Manufacturer> update(@PathVariable Long id,
+                                               @RequestBody Manufacturer manufacturer) {
+        manufacturer.setManufacturerId(id);
+        Manufacturer updated = manufacturerService.update(manufacturer);
+        return ResponseEntity.ok(updated);
+    }
+    
     @DeleteMapping("/{id}")
-	public ResponseEntity<String> delete(@PathVariable Long id) {
+	public ResponseEntity<Map<String, String>> delete(@PathVariable Long id) {
 		_LOGGER.info(">>> Inside deleteManufacturer. <<<");		
 		
 		if (id == null || id <= 0) {
 			throw new InvalidManufacturerException("Manufacturer id must not be empty");
 		}
 		
+		Map<String, String> response = new HashMap<>();
+		
 		try {
 			manufacturerService.deleteByManufacturerId(id);
-			return ResponseEntity.ok("Manufacturer deleted successfully.");		
+			
+			
+		    response.put("message", "Deleted successfully");
+			
+		    return ResponseEntity.ok(response);
+		    
 	    } catch (InvalidManufacturerException ex) {
-	        // ID not found in DB
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-	                .body("Manufacturer not found with id: " + id);
+	    	_LOGGER.error("Error deleting manufacturer InvalidManufacturerException with id {}: {}", id, ex.getMessage());
+	        response.put("status", HttpStatus.NOT_FOUND.toString());
+	        response.put("message", "Manufacturer not found with id: " + id);
+	        return ResponseEntity
+	                .status(HttpStatus.NOT_FOUND)
+	                .body(response);
 	    } catch (Exception ex) {
-	        _LOGGER.error("Error deleting manufacturer with id {}: {}", id, ex.getMessage());
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body("Unexpected error occurred: " + ex.getMessage());
+	        _LOGGER.error("Error deleting manufacturer Exception with id {}: {}", id, ex.getMessage());
+	        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.toString());
+	        response.put("message", "Unexpected error occurred: " + ex.getMessage());
+	        return ResponseEntity
+	                .status(HttpStatus.NOT_FOUND)
+	                .body(response);
 	    }
 		
 	}
 
-    @GetMapping
+    @GetMapping({"", "/"})
     public ResponseEntity<PageResponseDto<Manufacturer>> getAll(
     		@PageableDefault(size = 5, sort = "mfgName")
     	    Pageable pageable
@@ -119,14 +138,7 @@ public class ManufacturerController {
 		return ResponseEntity.ok(manufacturer);
     }
     
-    //@GetMapping("/search/{manufacturerNameLike}")
-    //public ResponseEntity<List<Manufacturer>> searchByName(@PathVariable String manufacturerNameLike) {
-    //@GetMapping("/search")
-    //@GetMapping("/search/{mfgName}")
-    //public ResponseEntity<List<Manufacturer>> searchByName(@RequestParam(name="mfgName", required=false) String manufacturerNameLike) {
-    @GetMapping({
-    	   "/search/{mfgName}"
-    	})
+    @GetMapping({"/search", "/search/{mfgName}"})
     public ResponseEntity<PageResponseDto<Manufacturer>> searchByName(
     		@PathVariable String mfgName,
     		@PageableDefault(size = 5, sort = "mfgName")
@@ -136,11 +148,6 @@ public class ManufacturerController {
     	if (mfgName == null || mfgName.isBlank()) {
             //throw new InvalidManufacturerException("Manufacturer name like must not be empty");
         }
-    	
-    	//int p = (page != null) ? page : 0;
-    	//int s = (size != null) ? size : 5;
-    	
-    	//Pageable pageable = PageRequest.of(p, s);
     	
 		Page<Manufacturer> page = null;
 		if (mfgName == null || mfgName.isBlank()) {
@@ -162,9 +169,6 @@ public class ManufacturerController {
     	if (page != null && page.isEmpty()) {
             //throw new ManufacturerNotFoundException("No manufacturers found for manufacturerNameLike: "+manufacturerNameLike);
         }
-
-        //return ResponseEntity.ok(manufacturers);
-        //return new ResponseEntity<>(manufacturers, HttpStatus.OK);
         
     	return new ResponseEntity<>(dto, HttpStatus.OK);
     }
