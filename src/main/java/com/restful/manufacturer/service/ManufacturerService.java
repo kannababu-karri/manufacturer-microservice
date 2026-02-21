@@ -43,6 +43,14 @@ public class ManufacturerService {
     		Manufacturer existing =
     		        manufacturerRepository.findById(manufacturer.getManufacturerId())
     		        .orElseThrow(() -> new RuntimeException("Manufacturer not found"));
+    		
+    		//Check existing and db product name.
+    		if(!existing.getMfgName().equalsIgnoreCase(manufacturer.getMfgName())) {
+    			//Check product name already exists.
+    			if (manufacturerRepository.findByMfgName(manufacturer.getMfgName()).isPresent()) {
+    		        throw new InvalidManufacturerException("Updated manufacturer name already exists!!!");
+    		    }
+    		}
 
 		    existing.setMfgName(manufacturer.getMfgName());
 		    existing.setAddress1(manufacturer.getAddress1());
@@ -53,10 +61,13 @@ public class ManufacturerService {
 		    existing.setZipExt(manufacturer.getZipExt());
 
 		    return manufacturerRepository.save(existing);
-    	} catch (Exception exp) {
-			_LOGGER.error("ERROR: Service Exception occured in update."+exp.toString());	
-			throw new ServiceException("ERROR: Service Exception occured in update."+exp.toString());
-		}
+
+	    } catch (DataIntegrityViolationException e) {
+	        throw new InvalidManufacturerException("Updated manufacturer name already exists!!!");
+	    } catch (Exception e) {
+	        _LOGGER.error("saveOrUpdate failed", e);
+	        throw new ServiceException("Server error while updating Manufacturer");
+	    }
     }
 
     public Page<Manufacturer> findAllManufacturers(Pageable pageable) throws ServiceException {

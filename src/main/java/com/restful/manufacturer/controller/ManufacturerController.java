@@ -44,7 +44,7 @@ public class ManufacturerController {
     	_LOGGER.info(">>> ManufacturerController LOADED. <<<");
     }
     
-    @PostMapping
+    @PostMapping({ "", "/" })
     public ResponseEntity<Manufacturer> create(@Valid @RequestBody Manufacturer manufacturer) {
 
         _LOGGER.info(">>> Inside createManufacturer. <<<");
