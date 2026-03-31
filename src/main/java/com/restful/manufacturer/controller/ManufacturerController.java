@@ -1,6 +1,7 @@
 package com.restful.manufacturer.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -21,11 +22,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.restful.manufacturer.config.Resilience4jMonitoringConfig;
 import com.restful.manufacturer.entity.Manufacturer;
 import com.restful.manufacturer.entity.PageResponseDto;
 import com.restful.manufacturer.exception.InvalidManufacturerException;
 import com.restful.manufacturer.exception.ManufacturerNotFoundException;
 import com.restful.manufacturer.service.ManufacturerService;
+import com.restful.manufacturer.service.PaymentService;
 import com.restful.manufacturer.utils.ILConstants;
 
 import jakarta.validation.Valid;
@@ -39,6 +42,13 @@ public class ManufacturerController {
 	
     @Autowired
     private ManufacturerService manufacturerService;
+    
+    //Implementation circuit break design pattern
+    @Autowired
+    private PaymentService paymentService;
+    
+    @Autowired
+    private Resilience4jMonitoringConfig resilience4jMonitoringConfig;
     
     public ManufacturerController() {
     	_LOGGER.info(">>> ManufacturerController LOADED. <<<");
@@ -185,4 +195,22 @@ public class ManufacturerController {
 				 .orElseThrow(() -> new ManufacturerNotFoundException("Manufacturer not found with manufacturerName: " + manufacturerName));
 		return ResponseEntity.ok(manufacturer);
 	}
+    
+    @GetMapping("/circuitBreakerDemo")
+    public ResponseEntity<List<String>> getByCircuitBreakerDemo() {
+    	_LOGGER.info(">>> ManufacturerController getByCircuitBreakerDemo. <<<");
+        //return ResponseEntity.ok(paymentService.circuitBreakDemo());
+    	
+    	resilience4jMonitoringConfig.setLogEvents();
+    	
+    	String result = paymentService.circuitBreakerDemoProgrammatic();
+    	
+    	_LOGGER.info("Result: {}", result);
+    	
+    	List<String> events = resilience4jMonitoringConfig.getLogEvents();
+    	
+    	events.forEach(event -> _LOGGER.info("Event: {}", event));
+    	
+    	return ResponseEntity.ok(events);
+    }
 }

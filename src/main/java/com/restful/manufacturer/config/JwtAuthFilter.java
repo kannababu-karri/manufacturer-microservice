@@ -31,7 +31,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     	_LOGGER.info(">>> Inside doFilterInternal manufacturer. <<<");
     	
-    	_LOGGER.info(">>> Method: " + request.getMethod());
+    	//_LOGGER.info(">>> Method: " + request.getMethod());
+    	
+    	// Allow Swagger URLs
+    	String path = request.getRequestURI();
+        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
+        	chain.doFilter(request, response);
+            return;
+        }
     	
     	// Allow preflight requests to pass
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
